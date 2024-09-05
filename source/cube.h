@@ -104,14 +104,6 @@ typedef struct s_img
 	int		y;
 }			t_img;
 
-// typedef struct s_move
-// {
-// 	int	forward;
-// 	int	bakcward;
-// 	int	rotate_right;
-// 	int	rotate_left;
-// }	t_move;
-
 typedef struct s_ray
 {
 	double	rayscreenposx;
@@ -124,13 +116,6 @@ typedef struct s_ray
 	int		hit;
 	int		wallfacehit;
 }			t_ray;
-
-// typedef struct s_pos_dir
-// {
-// 	double	pos[2];
-// 	double	dir[2];
-// 	double	plane[2];
-// }			t_pos_dir;
 
 typedef struct s_player
 {
@@ -152,7 +137,6 @@ typedef struct s_data
 	int			bits_per_pixel;
 	int			line_length;
 	int			endian;
-	// t_pos_dir	pos_dir;
 	t_player	player;
 	int			screenwidth;
 	int			screenheigth;
@@ -160,7 +144,6 @@ typedef struct s_data
 	t_map		info;
 	t_img		img_buffer;
 	t_img		texture[4];
-	// t_move		move;
 }				t_data;
 
 typedef struct s_draw
