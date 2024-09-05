@@ -26,13 +26,16 @@
 /* Game window settings */
 # define SCREENWIDTH 1280
 # define SCREENHEIGTH 960
+/* The .xpm i have are this size :)*/
 # define TEXTUREWIDTH 64
 # define TEXTUREHEIGHT 64
-# define CAMERAANGLE 0.66
+/* For a FOV of 60 degrees -> tan(60/2) = 0.577*/
+# define CAMERAANGLE 0.577
 # define GAMENAME "CUB3D"
+/* We are emulating a player/human, not a camera. Min wall distance to player*/
 # define DISTANCETOWALL 0.5
-# define MOV_SPEED 0.05
-# define ROTATIONSPEED 0.05
+# define MOV_SPEED 0.06
+# define ROTATIONSPEED 0.04
 
 /* Array positions for the textures*/
 # define SO 0
@@ -56,15 +59,15 @@
 #define Q_KEY 113
 #define ESC_KEY 65307
 
-/* defines for the movement management */
+/* Movement management of the push/release of keys*/
 #define ENABLE_MOVE 1
 #define DISABLE_MOVE 0
 
-/* Boolean (tipe int )*/
+/* Boolean (tipe int)*/
 #define FALSE 0
 #define TRUE 1
 
-/* Movement function modes defines */
+/* Movement functions modes defines */
 #define RIGHT -1
 #define LEFT 1
 #define FORWARD 1
@@ -77,7 +80,7 @@
 typedef struct s_map
 {
 	char		**map;
-	int			**imap;
+	char		**gamemap;
 	char		*no;
 	char		*so;
 	char		*we;
@@ -101,41 +104,44 @@ typedef struct s_img
 	int		y;
 }			t_img;
 
-typedef struct s_move
-{
-	int	forward;
-	int	bakcward;
-	int	rotate_right;
-	int	rotate_left;
-}	t_move;
+// typedef struct s_move
+// {
+// 	int	forward;
+// 	int	bakcward;
+// 	int	rotate_right;
+// 	int	rotate_left;
+// }	t_move;
 
 typedef struct s_ray
 {
-	double	camerax;
-	double	raydirx;
-	double	raydiry;
-	int		mapx;
-	int		mapy;
-	double	sidedistx;
-	double	sidedisty;
-	double	deltadistx;
-	double	deltadisty;
-	int		stepx;
-	int		stepy;
+	double	rayscreenposx;
+	double	raydir[2];
+	int		map[2];
+	double	sidedist[2];
+	double	deltadist[2];
+	int		step[2];
 	double	perpwalldist;
 	int		hit;
-	int		side;
+	int		wallfacehit;
 }			t_ray;
 
-typedef struct s_pos_dir
+// typedef struct s_pos_dir
+// {
+// 	double	pos[2];
+// 	double	dir[2];
+// 	double	plane[2];
+// }			t_pos_dir;
+
+typedef struct s_player
 {
-	double	posx;
-	double	posy;
-	double	dirx;
-	double	diry;
-	double	planex;
-	double	planey;
-}			t_pos_dir;
+	double	pos[2];
+	double	dir[2];
+	double	plane[2];
+	int		forward;
+	int		bakcward;
+	int		rotate_right;
+	int		rotate_left;
+}			t_player;
 
 typedef struct s_data
 {
@@ -146,14 +152,15 @@ typedef struct s_data
 	int			bits_per_pixel;
 	int			line_length;
 	int			endian;
-	t_pos_dir	pos_dir;
+	// t_pos_dir	pos_dir;
+	t_player	player;
 	int			screenwidth;
 	int			screenheigth;
 	int			**textures;
 	t_map		info;
-	t_img		img_pp;
+	t_img		img_buffer;
 	t_img		texture[4];
-	t_move		move;
+	// t_move		move;
 }				t_data;
 
 typedef struct s_draw
@@ -174,7 +181,7 @@ void	ft_free_cub(char *str, t_map *cub, int mode);
 t_ray	ft_init_ray(t_data dt, int x);
 void	ft_init_side(t_data dt, t_ray *ray);
 int		ft_raycasting(void *param);
-void	ft_raycasting_dda_algorithm(t_ray *ray, int **map);
+void	ft_raycasting_dda_algorithm(t_ray *ray, char **map);
 int		ft_move(t_data *dt);
 void	ft_get_draw_info(t_data dt, t_ray ray, t_draw *draw);
 void	ft_mlx_put_line(t_data *data, int x, t_draw draw);

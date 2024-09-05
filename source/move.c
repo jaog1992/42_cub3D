@@ -12,32 +12,48 @@
 
 #include "cube.h"
 
+/* 
+ft_move_forward_backward:
+This function handles player movement along the direction the player is facing.
+It checks if the next position in the map grid [info.gamemap] is walkable
+(i.e., not a wall) before updating the player's position [posx, posy].
+The movement speed [movespeed] and direction [sign] are used to determine 
+how far and in which direction to move the player (the work as steps)
+The player's position is updated on their current direction vector [dirx, diry].
+*/
 void	ft_move_forward_backward(t_data *data, double movespeed, int sign)
 {
-	if (!data->info.imap[(int)(data->pos_dir.posx + sign * 
-			data->pos_dir.dirx * movespeed)][(int)data->pos_dir.posy])
-		data->pos_dir.posx += sign * data->pos_dir.dirx * movespeed;
-	if (!data->info.imap[(int)data->pos_dir.posx]
-			[(int)
-			(data->pos_dir.posy + sign * data->pos_dir.diry * movespeed)])
-		data->pos_dir.posy += sign * data->pos_dir.diry * movespeed;
+	if (data->info.gamemap[(int)(data->player.pos[X_AXIS] + sign * 
+			data->player.dir[X_AXIS] * movespeed)][(int)data->player.pos[Y_AXIS]] == '0')
+		data->player.pos[X_AXIS] += sign * data->player.dir[X_AXIS] * movespeed;
+	if (data->info.gamemap[(int)data->player.pos[X_AXIS]][(int)
+			(data->player.pos[Y_AXIS] + sign * data->player.dir[Y_AXIS] * movespeed)] == '0')
+		data->player.pos[Y_AXIS] += sign * data->player.dir[Y_AXIS] * movespeed;
 }
 
+/* 
+ft_move_rotate:
+This function handles the rotation of the player's view.
+It rotates the direction vector [dirx, diry] & the camera plane[planex, planey]
+by a given rotation speed [rotspeed]. 
+The rotation is calculated using basic trigonometry, specifically the sine 
+and cosine functions, to update the direction and plane vectors.
+*/
 void	ft_move_rotate(t_data *data, double rotspeed, int sign)
 {
 	double	tempdirx;
 	double	tempplanex;
 
-	tempdirx = data->pos_dir.dirx;
-	tempplanex = data->pos_dir.planex;
-	data->pos_dir.dirx = data->pos_dir.dirx * cos(sign * rotspeed)
-		- data->pos_dir.diry * sin(sign * rotspeed);
-	data->pos_dir.diry = tempdirx * sin(sign * rotspeed)
-		+ data->pos_dir.diry * cos(sign * rotspeed);
-	data->pos_dir.planex = data->pos_dir.planex * cos(sign * rotspeed)
-		- data->pos_dir.planey * sin(sign * rotspeed);
-	data->pos_dir.planey = tempplanex * sin(sign * rotspeed)
-		+ data->pos_dir.planey * cos(sign * rotspeed);
+	tempdirx = data->player.dir[X_AXIS];
+	tempplanex = data->player.plane[X_AXIS];
+	data->player.dir[X_AXIS] = data->player.dir[X_AXIS] * cos(sign * rotspeed)
+		- data->player.dir[Y_AXIS] * sin(sign * rotspeed);
+	data->player.dir[Y_AXIS] = tempdirx * sin(sign * rotspeed)
+		+ data->player.dir[Y_AXIS] * cos(sign * rotspeed);
+	data->player.plane[X_AXIS] = data->player.plane[X_AXIS] * cos(sign * rotspeed)
+		- data->player.plane[Y_AXIS] * sin(sign * rotspeed);
+	data->player.plane[Y_AXIS] = tempplanex * sin(sign * rotspeed)
+		+ data->player.plane[Y_AXIS] * cos(sign * rotspeed);
 }
 
 int	ft_press_key(int key, void *param)
@@ -46,13 +62,13 @@ int	ft_press_key(int key, void *param)
 
 	data = (t_data *)param;
 	if (key == D_KEY || key == RIGHTARROW_KEY)
-		data->move.rotate_right = ENABLE_MOVE;
+		data->player.rotate_right = ENABLE_MOVE, printf("[posx, posy, dirx, diry, planex, plany][%f, %f, %f, %f, %f, %f]\n", data->player.pos[X_AXIS], data->player.pos[Y_AXIS], data->player.dir[X_AXIS], data->player.dir[Y_AXIS], data->player.plane[X_AXIS], data->player.plane[Y_AXIS]);
 	else if (key == A_KEY || key == LEFTARROW_KEY)
-		data->move.rotate_left = ENABLE_MOVE;
+		data->player.rotate_left = ENABLE_MOVE, printf("[posx, posy, dirx, diry, planex, plany][%f, %f, %f, %f, %f, %f]\n", data->player.pos[X_AXIS], data->player.pos[Y_AXIS], data->player.dir[X_AXIS], data->player.dir[Y_AXIS], data->player.plane[X_AXIS], data->player.plane[Y_AXIS]);
 	else if (key == S_KEY || key == DOWNARROW_KEY)
-		data->move.bakcward = ENABLE_MOVE;
+		data->player.bakcward = ENABLE_MOVE, printf("[posx, posy, dirx, diry, planex, plany][%f, %f, %f, %f, %f, %f]\n", data->player.pos[X_AXIS], data->player.pos[Y_AXIS], data->player.dir[X_AXIS], data->player.dir[Y_AXIS], data->player.plane[X_AXIS], data->player.plane[Y_AXIS]);
 	else if (key == W_KEY || key == UPARROW_KEY)
-		data->move.forward = ENABLE_MOVE;
+		data->player.forward = ENABLE_MOVE, printf("[posx, posy, dirx, diry, planex, plany][%f, %f, %f, %f, %f, %f]\n", data->player.pos[X_AXIS], data->player.pos[Y_AXIS], data->player.dir[X_AXIS], data->player.dir[Y_AXIS], data->player.plane[X_AXIS], data->player.plane[Y_AXIS]);
 	else if (key == Q_KEY || key == ESC_KEY)
 		ft_close(param);
 	return (EXIT_SUCCESS);
@@ -64,13 +80,13 @@ int	ft_release_key(int key, void *param)
 
 	data = (t_data *)param;
 	if (key == D_KEY || key == RIGHTARROW_KEY)
-		data->move.rotate_right = DISABLE_MOVE;
+		data->player.rotate_right = DISABLE_MOVE;
 	else if (key == A_KEY || key == LEFTARROW_KEY)
-		data->move.rotate_left = DISABLE_MOVE;
+		data->player.rotate_left = DISABLE_MOVE;
 	else if (key == S_KEY || key == DOWNARROW_KEY)
-		data->move.bakcward = DISABLE_MOVE;
+		data->player.bakcward = DISABLE_MOVE;
 	else if (key == W_KEY || key == UPARROW_KEY)
-		data->move.forward = DISABLE_MOVE;
+		data->player.forward = DISABLE_MOVE;
 	return (EXIT_SUCCESS);
 }
 
@@ -81,13 +97,13 @@ int	ft_move(t_data *data)
 
 	movespeed = MOV_SPEED;
 	rotspeed = ROTATIONSPEED;
-	if (data->move.rotate_right)
+	if (data->player.rotate_right)
 		ft_move_rotate(data, rotspeed, RIGHT);
-	if (data->move.rotate_left)
+	if (data->player.rotate_left)
 		ft_move_rotate(data, rotspeed, LEFT);
-	if (data->move.forward)
+	if (data->player.forward)
 		ft_move_forward_backward(data, movespeed, FORWARD);
-	if (data->move.bakcward)
+	if (data->player.bakcward)
 		ft_move_forward_backward(data, movespeed, BACKWARD);
 	return (EXIT_SUCCESS);
 }
