@@ -31,9 +31,9 @@ t_img	ft_read_texture(void *mlx, char *name, t_data *data)
 
 	image.img = mlx_xpm_file_to_image(mlx, name, &image.x, &image.y);
 	if (!image.img)
-		ft_free_cub("Error\nWrong XPM\n", &data->info, FREE_ALL);
+		ft_free_cub("Error\nWrong XPM\n", &data->map, FREE_ALL);
 	image.addr = (int *) mlx_get_data_addr(image.img, &image.bits_per_pixel,
-			&image.line_length, &image.endian);
-	image.line_length = image.line_length / 4;
+			&image.size_line, &image.endian);
+	image.size_line = image.size_line / 4;
 	return (image);
 }

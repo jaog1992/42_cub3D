@@ -35,14 +35,14 @@ int	ft_close(void *param)
 
 	data = (t_data *)param;
 	mlx_destroy_window(data->mlx, data->mlx_w);
-	ft_free_cub("Game exited\n", &data->info, FREE_ALL);
+	ft_free_cub("Game exited\n", &data->map, FREE_ALL);
 	exit(EXIT_SUCCESS);
 }
 
 /* Initialises the data structure*/
-void	ft_init_data(t_data *data, t_map info)
+void	ft_init_data(t_data *data, t_map map)
 {
-	data->info = info;
+	data->map = map;
 	data->mlx = mlx_init();
 	data->screenwidth = SCREENWIDTH;
 	data->screenheigth = SCREENHEIGTH;
@@ -50,14 +50,14 @@ void	ft_init_data(t_data *data, t_map info)
 	data->player.bakcward = DISABLE_MOVE;
 	data->player.rotate_right = DISABLE_MOVE;
 	data->player.rotate_left = DISABLE_MOVE;
-	data->texture[SO] = ft_read_texture(data->mlx, data->info.so, data);
-	data->texture[NO] = ft_read_texture(data->mlx, data->info.no, data);
-	data->texture[EA] = ft_read_texture(data->mlx, data->info.ea, data);
-	data->texture[WE] = ft_read_texture(data->mlx, data->info.we, data);
-	data->player.pos[X_AXIS] = (double)info.player_position[Y_AXIS] + DISTANCETOWALL;
-	data->player.pos[Y_AXIS] = (double)info.player_position[X_AXIS] + DISTANCETOWALL;
-	data->player.dir[X_AXIS] = (double)info.player_direction[Y_AXIS];
-	data->player.dir[Y_AXIS] = (double)info.player_direction[X_AXIS];
+	data->texture[SO] = ft_read_texture(data->mlx, data->map.so, data);
+	data->texture[NO] = ft_read_texture(data->mlx, data->map.no, data);
+	data->texture[EA] = ft_read_texture(data->mlx, data->map.ea, data);
+	data->texture[WE] = ft_read_texture(data->mlx, data->map.we, data);
+	data->player.pos[X_AXIS] = (double)map.player_position[Y_AXIS] + DISTANCETOWALL;
+	data->player.pos[Y_AXIS] = (double)map.player_position[X_AXIS] + DISTANCETOWALL;
+	data->player.dir[X_AXIS] = (double)map.player_direction[Y_AXIS];
+	data->player.dir[Y_AXIS] = (double)map.player_direction[X_AXIS];
 	data->player.plane[X_AXIS] = data->player.dir[Y_AXIS] * (CAMERAANGLE);
 	data->player.plane[Y_AXIS] = data->player.dir[X_AXIS] * (-CAMERAANGLE);
 	data->mlx_w = mlx_new_window(data->mlx, SCREENWIDTH, SCREENHEIGTH, GAMENAME);

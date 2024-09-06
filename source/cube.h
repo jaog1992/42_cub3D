@@ -77,6 +77,10 @@
 #define FREE_TEXTURES 0
 #define FREE_ALL 1
 
+/*
+ map: The map as in the .cub file
+ gamemap: The map copy the game uses. The player is erased.
+*/
 typedef struct s_map
 {
 	char		**map;
@@ -93,17 +97,32 @@ typedef struct s_map
 	int			start_map;
 }				t_map;
 
+/*
+ img: The main reference to the image that will be used in rendering.
+ addr: A pointer to the image data, containing the pixel colors. 
+       This is used to access individual pixels during rendering.
+ bits_per_pixel (bpp): Indicates how many bits are used to represent the color
+                       of each pixel. 
+                       For example, 32 bits per pixel is common for 
+	                   images with RGBA color channels.
+ size_line: The number of bytes needed to store a complete line of pixels in
+              the image. This is important for calculating the memory position
+			  of each pixel.
+ endian: Determines whether the image uses big-endian or little-endian, which
+         affects the byte order in the pixel color representation.
+*/
 typedef struct s_img
 {
 	void	*img;
 	int		*addr;
 	int		bits_per_pixel;
-	int		line_length;
+	int		size_line;
 	int		endian;
 	int		x;
 	int		y;
 }			t_img;
 
+/* rayscreenposx: the ray's X axis position on the game screen*/
 typedef struct s_ray
 {
 	double	rayscreenposx;
@@ -117,6 +136,12 @@ typedef struct s_ray
 	int		wallfacehit;
 }			t_ray;
 
+/* dir and plane use the player initial position and direction as reference
+   on an euclydian plane. Given that that means working on a Unitary circle
+   ( radius == 1 ) the max and min values go from -1 to 1.
+   Pos, in the other hand, references the player's current position on the 
+   map grid.
+*/
 typedef struct s_player
 {
 	double	pos[2];
@@ -135,17 +160,25 @@ typedef struct s_data
 	void		*img;
 	char		*addr;
 	int			bits_per_pixel;
-	int			line_length;
+	int			size_line;
 	int			endian;
 	t_player	player;
 	int			screenwidth;
 	int			screenheigth;
 	int			**textures;
-	t_map		info;
+	t_map		map;
 	t_img		img_buffer;
 	t_img		texture[4];
 }				t_data;
 
+/*
+ wallx: The horizontal position on the wall texture where the ray hits.
+              Calculated using the player's position and the distance to the 
+			  wall. Adjusted to be in the range [0, 1) within the texture.
+ texx: Horizontal coordinate in the texture for the current pixel on the screen
+ 	   Calculated by multiplying `wallx` by the texture width [TEXTUREWIDTH].
+	   Adjusted based on the ray's direction to correct the orientation.
+*/
 typedef struct s_draw
 {
 	int		drawstart;
@@ -153,7 +186,7 @@ typedef struct s_draw
 	int		texnum;
 	int		texx;
 	double	wallx;
-	int		lineheight;
+	int		columnheight;
 }			t_draw;
 
 /* Utils */
@@ -174,7 +207,7 @@ void	ft_free_textures(int **textures);
 t_img	ft_read_texture(void *mlx, char *name, t_data *dt);
 
 /* Game */
-void	ft_game(t_map info);
+void	ft_game(t_map map);
 int		ft_press_key(int key, void *param);
 int		ft_release_key(int key, void *param);
 void	ft_move_rotate(t_data *dt, double rotspeed, int sign);

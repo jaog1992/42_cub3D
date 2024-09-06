@@ -135,20 +135,21 @@ void	ft_raycasting_dda_algorithm(t_ray *ray, char **map)
 ft_get_draw_info:
 This function calculates the necessary information to draw the vertical stripe
 on the screen for to the current ray. It determines the height of the line to
-be drawn [lineheight] based on the perpendicular wall distance [perpwalldist].
+be drawn [columnheight] based on the perpendicular wall distance [perpwalldist].
 The starting [drawstart] and ending [drawend] points of the line are computed
 to ensure it fits within the screen bounds.
 The wall texture and texture X coordinate are selected based on which side 
 of the wall was hit [side] and the exact location of the wall hit.
 
+the ray hit the right side of a vertical wall, so the texture coordinates should be reversed
 */
 void	ft_get_draw_info(t_data data, t_ray ray, t_draw *draw)
 {
-	draw->lineheight = (int)(data.screenheigth / ray.perpwalldist);
-	draw->drawstart = -draw->lineheight / 2 + data.screenheigth / 2;
+	draw->columnheight = (int)(data.screenheigth / ray.perpwalldist);
+	draw->drawstart = data.screenheigth / 2 - draw->columnheight / 2;
 	if (draw->drawstart < 0)
 		draw->drawstart = 0;
-	draw->drawend = draw->lineheight / 2 + data.screenheigth / 2;
+	draw->drawend = draw->columnheight / 2 + data.screenheigth / 2;
 	if (draw->drawend >= data.screenheigth)
 		draw->drawend = data.screenheigth - 1;
 	if (ray.wallfacehit == Y_AXIS && ray.raydir[X_AXIS] > 0)
@@ -197,12 +198,12 @@ int	ft_raycasting(void *param)
 	ft_move(data);
 	data->img_buffer.img = mlx_new_image(data->mlx, SCREENWIDTH, SCREENHEIGTH);
 	data->img_buffer.addr = (int *) mlx_get_data_addr(data->img_buffer.img,
-			&data->img_buffer.bits_per_pixel, &data->img_buffer.line_length,
+			&data->img_buffer.bits_per_pixel, &data->img_buffer.size_line,
 			&data->img_buffer.endian);
 	while (i < data->screenwidth)
 	{
 		ray = ft_init_ray(*data, i);
-		ft_raycasting_dda_algorithm(&ray, data->info.gamemap);
+		ft_raycasting_dda_algorithm(&ray, data->map.gamemap);
 		ft_get_draw_info(*data, ray, &draw);
 		ft_mlx_put_line(data, i, draw);
 		i++;
