@@ -55,7 +55,6 @@ void	ft_init_side(t_data data, t_ray *ray)
 	}
 }
 
-
 /* 
 
  ft_init_ray:
@@ -89,7 +88,6 @@ t_ray	ft_init_ray(t_data data, int x)
 	ft_init_side(data, &ray);
 	return (ray);
 }
-
 
 /* 
 

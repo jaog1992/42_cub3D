@@ -150,3 +150,56 @@ of your choice.
 ❌ Floodfill
 ✅ Raycasting
 ✅ Gameplay
+
+## ray scheme
+
+For the raycasting the lodev explanation has been used. The full detailed explanation can be accessed on his site https://lodev.org/cgtutor/raycasting.html#The_Basic_Idea_, but this is a summary of the main key ideas it explains:
+
+[![ray wall distance calculus](img/wall_distance_calc.png)]()
+
+Meaning of the points:
+
+P: position of the player, (posX, posY) in the code
+H: hitpoint of the ray on the wall. Its y-position is known to be mapY + (1 - stepY) / 2
+yDist matches "(mapY + (1 - stepY) / 2 - posY)", this is the y coordinate of the Euclidean distance vector, in world coordinates. Here, (1 - stepY) / 2) is a correction term that is 0 or 1 based on positive or negative y direction, which is also used in the initialization of sideDistY.
+
+dir: the main player looking direction, given by dirX,dirY in the code. The length of this vector is always exactly 1. This matches the looking direction in the center of the screen, as opposed to the direction of the current ray. It is perpendicular to the camera plane, and perpWallDist is parallel to this.
+
+orange dotted line (may be hard to see, use CTRL+scrollwheel or CTRL+plus to zoom in a desktop browser to see it better): the value that was added to dir to get rayDir. Importantly, this is parallel to the camera plane, perpendicular to dir.
+A: point of the camera plane closest to H, the point where perpWallDist intersects with camera plane
+B: point of X-axis through player closest to H, point where yDist crosses the world X-axis through the player
+C: point at player position + rayDirX
+D: point at player position + rayDir.
+E: This is point D with the dir vector subtracted, in other words, E + dir = D.
+points A, B, C, D, E, H and P are used in the explanation below: they form triangles which are considered: BHP, CDP, AHP and DEP.
+
+The actual derivation:
+
+1: Triangles PBH and PCD have the same shape but different size, so same ratios of edges
+
+2: Given step 1, the triangles show that the ratio yDist / rayDirY is equal to the ratio Euclidean / |rayDir|, so now we can derive perpWallDist = Euclidean / |rayDir| instead.
+
+3: Triangles AHP and EDP have the same shape but different size, so same ratios of edges. Length of edge ED, that is |ED|, equals length of dir, |dir|, which is 1. Similarly, |DP| equals |rayDir|.
+
+4: Given step 3, the triangles show that the ratio Euclidean / |rayDir| = perpWallDist / |dir| = perpWallDist / 1.
+
+5: Combining steps 4 and 2 shows that perpWallDist = yDist / rayDirY, where yDist is mapY + (1 - stepY) / 2) - posY
+
+6: In the code, sideDistY - deltaDistY, after the DDA steps, equals (posY + (1 - stepY) / 2 - mapY) * deltaDistY (given that sideDistY is computed from posY and mapY), so yDist = (sideDistY - deltaDistY) / deltaDistY
+
+7: Given that deltaDistY = 1 / |rayDirY|, step 6 gives that yDist = (sideDistY - deltaDistY) * |rayDirY|
+
+8: Combining steps 5 and 7 gives perpWallDist = yDist / rayDirY = (sideDistY - deltaDistY) / |rayDirY| / rayDirY.
+
+9: Given how cases for signs of sideDistY and deltaDistY in the code are handled the absolute value doesn't matter, and equals (sideDistY - deltaDistY), which is the formula used
+
+
+On the other hand the deltadist is calculated as:
+
+[![delta side distance](img/delta_side_dist.png)]()
+
+The player is not positioned exactly on one of the grid lines.
+sideDistX and sideDistY represent the distance from the player's position 
+to the first grid line along the X and Y axes, based on the ray's angle.
+deltaDistX and deltaDistY are the fixed steps the ray needs to take 
+to cross the next X or Y grid line, assuming a grid cell value of 1.
